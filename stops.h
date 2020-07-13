@@ -23,6 +23,8 @@ public:
 
   double DistanceTo(const Stop &other) const;
 
+  std::set<std::string> buses_through_stop_;
+
 private:
   const std::string name_;
   double lat_ = 0.0;
@@ -34,3 +36,7 @@ struct StopHasher {
 };
 
 bool operator==(const Stop &l, const Stop &r);
+
+//bool operator<(const Stop &l, const Stop &r) {
+//  return l.GetName() == r.GetName();
+//}

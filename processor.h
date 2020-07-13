@@ -10,7 +10,7 @@ public:
 
   void process();
 
-  void out(std::istream &in = std::cin, std::ostream &out = std::cout);
+  void out(std::istream &in = std::cin, std::ostream &out = std::cout, int precision = 6);
 
 private:
   TransportSystem transportSystem;

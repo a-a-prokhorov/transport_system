@@ -8,4 +8,4 @@
 
 std::variant<Stop, Bus> ParseInputRequest(std::string &line);
 
-std::string ParseOutputRequest(std::string &line);
+std::variant<Stop, Bus>  ParseOutputRequest(std::string &line);

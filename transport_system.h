@@ -3,7 +3,8 @@
 #include "stops.h"
 #include "buses.h"
 
-#include <unordered_set>
+//#include <unordered_set>
+#include <unordered_map>
 
 class TransportSystem {
 public:
@@ -13,11 +14,11 @@ public:
 
   void InsertBus(Bus &bus);
 
-  std::unordered_set<Stop, StopHasher>& GetAllStops();
+  std::unordered_map<std::string, Stop>& GetAllStops();
 
-  std::vector<Bus>& GetAllBuses();
+  std::unordered_map<std::string, Bus>& GetAllBuses();
 
 private:
-  std::unordered_set<Stop, StopHasher> all_stops_;
-  std::vector<Bus> all_buses_;
+  std::unordered_map<std::string, Stop> all_stops_;
+  std::unordered_map<std::string, Bus> all_buses_;
 };

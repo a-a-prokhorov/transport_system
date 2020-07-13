@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ variant<Stop, Bus> ParseInputRequest(string &line) {
     string lon_string = line.substr(pos_of_first_comma + 2, pos_of_next_comma_or_end - pos_of_first_comma - 2);
     return move(Stop(name, stod(lat_string), stod(lon_string)));
   }
-  else {
+  else if (request == "Bus") {
     size_t pos_of_dash = line.find("-", pos_of_colon);
     bool isRing = false;
     string delimiter;
@@ -47,10 +48,22 @@ variant<Stop, Bus> ParseInputRequest(string &line) {
 
     return move(Bus(name, stops, isRing));
   }
+  else {
+    throw runtime_error("unknown request");
+  }
 }
 
-std::string ParseOutputRequest(std::string &line) {
+variant<Stop, Bus> ParseOutputRequest(std::string &line) {
   size_t pos_of_first_space = line.find(" ");
-  string name = line.substr(pos_of_first_space + 1);
-  return name;
+  size_t pos_of_colon = line.find(":", pos_of_first_space);
+  string request = line.substr(0, pos_of_first_space);
+  string name = line.substr(pos_of_first_space + 1, pos_of_colon - pos_of_first_space - 1);
+  if (request == "Stop") {
+    return Stop(name);
+  }
+  else if (request == "Bus") {
+    return Bus(name);
+  } else {
+    throw runtime_error("unknown request");
+  }
 }

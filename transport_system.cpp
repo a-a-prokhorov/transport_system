@@ -6,19 +6,19 @@ TransportSystem::TransportSystem() {
 }
 
 void TransportSystem::InsertStop(Stop &stop) {
-  all_stops_.insert(stop);
+  all_stops_.insert({stop.GetName(), stop});
 
 }
 
 void TransportSystem::InsertBus(Bus &bus) {
-  all_buses_.push_back(bus);
+  all_buses_.insert({bus.GetName(), bus});
 }
 
-unordered_set<Stop, StopHasher>& TransportSystem::GetAllStops() {
+std::unordered_map<std::string, Stop>& TransportSystem::GetAllStops() {
   return all_stops_;
 }
 
-vector<Bus>& TransportSystem::GetAllBuses() {
+std::unordered_map<std::string, Bus>& TransportSystem::GetAllBuses() {
   return all_buses_;
 }
 
