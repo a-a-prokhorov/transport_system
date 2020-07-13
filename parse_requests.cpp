@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
+#include <unordered_map>
 
 using namespace std;
 
@@ -17,7 +18,21 @@ variant<Stop, Bus> ParseInputRequest(string &line) {
     string lat_string = line.substr(pos_of_colon + 2, pos_of_first_comma - pos_of_colon - 2);
     size_t pos_of_next_comma_or_end = line.find(",", pos_of_first_comma + 2);
     string lon_string = line.substr(pos_of_first_comma + 2, pos_of_next_comma_or_end - pos_of_first_comma - 2);
-    return move(Stop(name, stod(lat_string), stod(lon_string)));
+    if (pos_of_next_comma_or_end == string::npos) {
+      return move(Stop(name, stod(lat_string), stod(lon_string)));
+    } else {
+      unordered_map<string, int> stops;
+      size_t pos_of_m;
+      string distance_string, stop_string;
+      do {
+        pos_of_m = line.find("m", pos_of_next_comma_or_end + 2);
+        distance_string = line.substr(pos_of_next_comma_or_end + 2, pos_of_next_comma_or_end - pos_of_m - 2);
+        pos_of_next_comma_or_end = line.find(",", pos_of_m + 5);
+        string stop_string = line.substr(pos_of_m + 5, pos_of_next_comma_or_end - pos_of_m - 5);
+        stops[stop_string] = stoi(distance_string);
+      } while(pos_of_next_comma_or_end != string::npos);
+      return move(Stop(name, stod(lat_string), stod(lon_string), stops));
+    }
   }
   else if (request == "Bus") {
     size_t pos_of_dash = line.find("-", pos_of_colon);

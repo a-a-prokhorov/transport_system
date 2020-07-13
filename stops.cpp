@@ -10,8 +10,8 @@ Stop::Stop(string name) :
     name_(move(name)) {
 }
 
-Stop::Stop(string name, double lat, double lon) :
-    name_(move(name)), lat_(lat), lon_(lon) {
+Stop::Stop(string name, double lat, double lon, unordered_map<string, int> distances_to_other_stops) :
+    name_(move(name)), lat_(lat), lon_(lon), distances_to_other_stops_(distances_to_other_stops) {
 }
 
 string Stop::GetName() const {
@@ -35,18 +35,4 @@ double Stop::DistanceTo(const Stop &other) const {
       sin(lat_rad) * sin(other_lat_rad)
           + cos(lat_rad) * cos(other_lat_rad)
               * cos(abs_lon_diff)) * EARTH_RADIUS;
-}
-
-size_t StopHasher::operator()(const Stop &s) const {
-  string name = s.GetName();
-  size_t result = 0;
-  for (size_t i = 0; i < name.size() - 1; ++i) {
-    result = name[i] - '0';
-    result *= 100;
-  }
-  return result;
-}
-
-bool operator==(const Stop &l, const Stop &r) {
-  return l.GetName() == r.GetName();
 }

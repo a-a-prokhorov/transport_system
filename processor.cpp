@@ -22,35 +22,54 @@ void Processor::in(istream &in) {
 }
 
 void Processor::process() {
-  std::unordered_map<std::string, Stop> &all_stops = transportSystem.GetAllStops();
-  std::unordered_map<std::string, Bus> &all_buses = transportSystem.GetAllBuses();
+  unordered_map<string, Stop> &all_stops = transportSystem.GetAllStops();
+  unordered_map<string, Bus> &all_buses = transportSystem.GetAllBuses();
 
-  for (auto& [name, b] : all_buses) {
-    vector<string> stops_for_bus = b.GetStops();
+  //calculate real distances
+  unordered_map<string, unordered_map<string, int>> all_real_distances;
+  for (auto& [name, stop] : all_stops) {
+    for (auto& [name_of_other_stop, distance] : stop.distances_to_other_stops_) {
+      all_real_distances[name][name_of_other_stop] = distance;
+      if ((*all_stops.find(name_of_other_stop)).second.distances_to_other_stops_.count(name) == 0) {
+        all_real_distances[name_of_other_stop][name] = distance;
+      }
+    }
+  }
+
+  //calculate bus info
+  for (auto& [name, bus] : all_buses) {
+    vector<string> stops_for_bus = bus.GetStops();
     auto stop_it_from_all_stops = all_stops.find(stops_for_bus[0]);
     for (size_t i = 0; i < stops_for_bus.size() - 1; ++i) {
       //add bus to stop
       (*stop_it_from_all_stops).second.buses_through_stop_.insert(name);
       //find next stop for bus
       auto next_stop_it_from_all_stops = all_stops.find(stops_for_bus[i + 1]);
-      b.distance_on_earth_ += ((*stop_it_from_all_stops).second).DistanceTo(
-          (*next_stop_it_from_all_stops).second);
+      bus.distance_on_earth_ += ((*stop_it_from_all_stops).second).DistanceTo((*next_stop_it_from_all_stops).second);
+      bus.real_distance_ += all_real_distances[(*stop_it_from_all_stops).second.GetName()][(*next_stop_it_from_all_stops).second.GetName()];
       stop_it_from_all_stops = next_stop_it_from_all_stops;
     }
     //add bus to last stop
-    auto last_stop_it_from_all_stops = all_stops.find(
-        stops_for_bus[stops_for_bus.size() - 1]);
+    auto last_stop_it_from_all_stops = all_stops.find(stops_for_bus[stops_for_bus.size() - 1]);
     (*last_stop_it_from_all_stops).second.buses_through_stop_.insert(name);
 
-    set<string> stops_for_bus_unique(stops_for_bus.begin(),
-        stops_for_bus.end());
-    b.unique_stops = stops_for_bus_unique.size();
-    if (b.GetIsRing()) {
-      b.stops_on_route_ = stops_for_bus.size();
+    //unique stops for bus
+    set<string> stops_for_bus_unique(stops_for_bus.begin(), stops_for_bus.end());
+    bus.unique_stops = stops_for_bus_unique.size();
+
+    //there are some differences between straight and ring path
+    if (bus.GetIsRing()) {
+      bus.stops_on_route_ = stops_for_bus.size();
     } else {
-      b.stops_on_route_ = 2 * stops_for_bus.size() - 1;
-      b.distance_on_earth_ *= 2;
+      bus.stops_on_route_ = 2 * stops_for_bus.size() - 1;
+      bus.distance_on_earth_ *= 2;
+      for (size_t i = stops_for_bus.size() - 1; i > 0; --i) {
+        auto stop_it_from_all_stops = all_stops.find(stops_for_bus[i]);
+        auto next_stop_it_from_all_stops = all_stops.find(stops_for_bus[i - 1]);
+        bus.real_distance_ += all_real_distances[(*stop_it_from_all_stops).second.GetName()][(*next_stop_it_from_all_stops).second.GetName()];
+      }
     }
+    bus.curvature_ = bus.real_distance_ / bus.distance_on_earth_;
   }
 }
 
@@ -93,7 +112,8 @@ void Processor::out(istream &in, ostream &out, int precision) {
         out << fixed;
         out << " " << bus.stops_on_route_ << " stops on route, " << bus.unique_stops
             << " unique stops, " << setprecision(precision)
-            << bus.distance_on_earth_ << " route length" << endl;
+            << bus.real_distance_ << " route length, "
+            << bus.curvature_ << " curvature" << endl;
       }
     }
 
