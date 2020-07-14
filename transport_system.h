@@ -10,9 +10,9 @@ class TransportSystem {
 public:
   TransportSystem();
 
-  void InsertStop(Stop &stop);
+  void InsertStop(Stop stop);
 
-  void InsertBus(Bus &bus);
+  void InsertBus(Bus bus);
 
   std::unordered_map<std::string, Stop>& GetAllStops();
 

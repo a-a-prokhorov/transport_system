@@ -34,10 +34,15 @@ Node LoadNumber(istream &input) {
 
 Node LoadBool(istream &input) {
   string str;
-  input >> str;
   bool value = false;
+  char c;
 
-  if (str.substr(0, 4) == "true") {
+  do {
+    input >> c;
+    str.push_back(c);
+  } while (c != 'e');
+
+  if (str == "true") {
     value = true;
   }
 

@@ -11,7 +11,7 @@ Stop::Stop(string name) :
 }
 
 Stop::Stop(string name, double lat, double lon, unordered_map<string, int> distances_to_other_stops) :
-    name_(move(name)), lat_(lat), lon_(lon), distances_to_other_stops_(distances_to_other_stops) {
+    name_(move(name)), lat_(lat), lon_(lon), distances_to_other_stops_(move(distances_to_other_stops)) {
 }
 
 string Stop::GetName() const {

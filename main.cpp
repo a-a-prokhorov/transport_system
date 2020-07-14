@@ -1,4 +1,4 @@
-//#include "json.h"
+#include "json.h"
 #include "parse_requests.h"
 #include "test_runner.h"
 #include "tests.h"
@@ -6,6 +6,7 @@
 
 int main() {
   TestAll();
-  RunProcessor();
+  bool isJson = true;
+  RunProcessor(isJson);
 	return 0;
 }
